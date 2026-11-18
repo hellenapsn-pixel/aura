@@ -14,7 +14,7 @@ export async function POST(req:Request){
    const customer=await client.query("INSERT INTO customers(full_name,email,phone) VALUES($1,$2,$3) ON CONFLICT(email) DO UPDATE SET full_name=EXCLUDED.full_name,phone=EXCLUDED.phone RETURNING id",[fullName,email.toLowerCase(),phone]);
    const days=Math.max(1,Math.ceil((new Date(returnAt).getTime()-new Date(pickupAt).getTime())/86400000));
    const total=(Number(vehicle.rows[0].daily_rate)*days).toFixed(2);
-   const reservation=await client.query("INSERT INTO reservations(customer_id,vehicle_id,pickup_at,return_at,status,total_amount) VALUES($1,$2,$3,$4,'pending',$5) RETURNING id",[customer.rows[0].id,vehicleId,pickupAt,returnAt,total]);
+   const reservation=await client.query("INSERT INTO reservations(customer_id,vehicle_id,pickup_at,return_at,pickup_location,return_location,status,total_amount) VALUES($1,$2,$3,$4,'A combinar com a equipe','A combinar com a equipe','pending',$5) RETURNING id",[customer.rows[0].id,vehicleId,pickupAt,returnAt,total]);
    await client.query("COMMIT");
    return NextResponse.json({ok:true,reservationId:reservation.rows[0].id,totalAmount:total},{status:201});
   }catch(e){await client.query("ROLLBACK");throw e;}finally{client.release();}
